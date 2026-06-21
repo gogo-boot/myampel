@@ -1,0 +1,19 @@
+---
+BasedOnStyle: Google
+BreakBeforeBraces: Attach
+AllowShortIfStatementsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+PointerAlignment: Left
+ReferenceAlignment: Left
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlwaysBreakAfterReturnType: None
+SpaceBeforeParens: Never
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
