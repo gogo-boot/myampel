@@ -8,3 +8,8 @@
 # Ignore all secret headers except example files
 include/secrets/*.h
 !include/secrets/*.example
+
+# Docusaurus
+docs-site/node_modules/
+docs-site/build/
+docs-site/.docusaurus/
