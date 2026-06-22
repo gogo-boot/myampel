@@ -4,8 +4,8 @@
 const config = {
   title: 'MyAmpel',
   tagline: 'Battery-powered German train signal system',
-  url: 'https://myampel.example.com',
-  baseUrl: '/',
+  url: 'https://gogo-boot.github.io',
+  baseUrl: '/myampel/',
   onBrokenLinks: 'throw',
   favicon: 'img/favicon.ico',
 
