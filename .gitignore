@@ -10,6 +10,6 @@ include/secrets/*.h
 !include/secrets/*.example
 
 # Docusaurus
-docs-site/node_modules/
-docs-site/build/
-docs-site/.docusaurus/
+website/node_modules/
+website/build/
+website/.docusaurus/.idea/
