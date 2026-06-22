@@ -35,6 +35,10 @@ jobs:
       - name: Clean npm cache
         run: npm cache clean --force
 
+      - name: Remove lockfile for clean install
+        working-directory: ./docs-site
+        run: rm -f package-lock.json
+
       - name: Install dependencies
         working-directory: ./docs-site
         run: npm install --no-audit --no-fund
