@@ -26,8 +26,10 @@ Development board: **ESP32-C3-DevKitC-02**
 ├─────────────────┤
 │   PRE-SIGNAL    │
 │                 │
-│   ⚪ LED 1      │   ← color TBD (RGB or single-color)
-│   ⚪ LED 2      │   ← color TBD (RGB or single-color)
+│   🟡 Yellow 1   │   ← single color LED
+│   🟡 Yellow 2   │   ← single color LED
+│   🟢 Green 1    │   ← single color LED
+│   🟢 Green 2    │   ← single color LED
 │                 │
 └─────────────────┘
 ```
@@ -38,13 +40,9 @@ Development board: **ESP32-C3-DevKitC-02**
 - Only one lit at a time
 
 ### Pre-Signal
-- 2× LEDs showing either YELLOW or GREEN
-- **Option A:** 2× RGB LEDs (e.g., WS2812B addressable) — 1 data pin, full color flexibility
-- **Option B:** 2× yellow + 2× green single-color LEDs — 4 pins, simpler circuit
-
-:::note Decision Pending
-RGB LED type not yet decided. WS2812B are 5V — voltage compatibility with ESP32-C3 (3.3V) needs checking. Alternatives: SK6812 (works at 3.3V-5V), or separate single-color LEDs.
-:::
+- 2× Yellow LEDs — lit when next signal is RED (Vr0 = expect stop)
+- 2× Green LEDs — lit when next signal is GREEN (Vr1 = expect proceed)
+- Yellow pair OR green pair lit at a time, never both
 
 ## Sensors
 
@@ -67,20 +65,67 @@ RGB LED type not yet decided. WS2812B are 5V — voltage compatibility with ESP3
 - **Button 1 (Green):** Set signal to GREEN / pairing role
 - **Button 2 (Red):** Set signal to RED / pairing role
 
-## GPIO Assignment (Preliminary)
+## GPIO Assignment (ESP32-C3-MINI-1)
 
-| GPIO | Function | Notes |
-|------|----------|-------|
-| TBD | Red LED (main) | Output, active high |
-| TBD | Green LED (main) | Output, active high |
-| TBD | Pre-signal data / LEDs | 1 pin if WS2812B, more if single-color |
-| TBD | IR sensor input | Input, pulled up, goes low on detection |
-| TBD | Button 1 (green) | Input, internal pull-up, active low |
-| TBD | Button 2 (red) | Input, internal pull-up, active low |
+The ESP32-C3-MINI-1 exposes 15 GPIOs. After reserving USB (GPIO18/19) and UART0 (GPIO20/21), 11 pins remain. We use 9:
 
-:::note
-GPIO pin assignments will be defined once the physical PCB/wiring layout is decided. Until then, all pin numbers are abstracted behind defines in `include/config/pins.h`.
-:::
+| GPIO | Function | Direction | Notes |
+|------|----------|-----------|-------|
+| GPIO0 | Red LED (main) | Output | Safe pin |
+| GPIO1 | Green LED (main) | Output | Safe pin |
+| GPIO3 | Pre-signal Yellow 1 | Output | Safe pin |
+| GPIO10 | Pre-signal Yellow 2 | Output | Safe pin |
+| GPIO4 | Pre-signal Green 1 | Output | JTAG pin, fine as output |
+| GPIO5 | Pre-signal Green 2 | Output | JTAG pin, fine as output |
+| GPIO6 | Button Green | Input | Internal pull-up, active low |
+| GPIO7 | Button Red | Input | Internal pull-up, active low |
+| GPIO8 | IR Sensor | Input | Strapping pin, OK as input |
+
+**Spare pins:** GPIO2 (strapping — can drive IR LED to pulse), GPIO9 (boot mode — leave free or use as wake pin)
+
+### Pin Warnings
+
+| Pin | Concern | Mitigation |
+|-----|---------|------------|
+| GPIO2 | Strapping (boot mode) | Don't pull low at boot. Fine as output after boot. |
+| GPIO4–7 | JTAG | Using these disables JTAG debugging. Acceptable for production. |
+| GPIO8 | Strapping (rom_log) | OK as input — just don't pull low externally at boot. |
+| GPIO9 | Strapping (boot_mode) | Left unconnected for clean boots. |
+
+## Wiring
+
+```
+ESP32-C3-MINI-1
+┌────────────────────────┐
+│                        │
+│  GPIO0  ──[220Ω]──────┤── 🔴 Red LED ────── GND
+│  GPIO1  ──[220Ω]──────┤── 🟢 Green LED ──── GND
+│                        │
+│  GPIO3  ──[220Ω]──────┤── 🟡 Yellow LED 1 ─ GND
+│  GPIO10 ──[220Ω]──────┤── 🟡 Yellow LED 2 ─ GND
+│  GPIO4  ──[220Ω]──────┤── 🟢 Green LED 1 ── GND
+│  GPIO5  ──[220Ω]──────┤── 🟢 Green LED 2 ── GND
+│                        │
+│  GPIO6  ──────────────┤── [BTN GREEN] ───── GND
+│  GPIO7  ──────────────┤── [BTN RED] ─────── GND
+│                        │   (internal pull-up)
+│                        │
+│  GPIO8  ──────────────┤── IR Phototransistor
+│                        │   (pull-up, LOW on detect)
+│                        │
+│  3V3    ──────────────┤── IR LED ──[100Ω]── GND
+│  GND    ──────────────┤── Common ground
+└────────────────────────┘
+```
+
+### Component Notes
+
+- **LEDs**: 220Ω resistor each (at 3.3V → ~5–10 mA per LED)
+- **Buttons**: No external resistor — `INPUT_PULLUP` in firmware, button shorts pin to GND
+- **IR Sensor**: Phototransistor with internal pull-up. Train breaks beam → pin goes LOW
+- **IR LED**: Always-on from 3.3V rail (~1 mA). Optional: drive from GPIO2 to pulse and save power
+
+Pin definitions are in `include/config/pins.h`.
 
 ## Power
 
