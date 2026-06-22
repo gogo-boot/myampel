@@ -7,8 +7,10 @@ static const char* TAG = "Signal";
 void SignalController::begin() {
     pinMode(PIN_LED_RED, OUTPUT);
     pinMode(PIN_LED_GREEN, OUTPUT);
-    pinMode(PIN_PRE_LED_1, OUTPUT);
-    pinMode(PIN_PRE_LED_2, OUTPUT);
+    pinMode(PIN_PRE_YELLOW_1, OUTPUT);
+    pinMode(PIN_PRE_YELLOW_2, OUTPUT);
+    pinMode(PIN_PRE_GREEN_1, OUTPUT);
+    pinMode(PIN_PRE_GREEN_2, OUTPUT);
     allOff();
 }
 
@@ -23,8 +25,10 @@ void SignalController::update() {
 void SignalController::selfTest() {
     digitalWrite(PIN_LED_RED, HIGH);
     digitalWrite(PIN_LED_GREEN, HIGH);
-    digitalWrite(PIN_PRE_LED_1, HIGH);
-    digitalWrite(PIN_PRE_LED_2, HIGH);
+    digitalWrite(PIN_PRE_YELLOW_1, HIGH);
+    digitalWrite(PIN_PRE_YELLOW_2, HIGH);
+    digitalWrite(PIN_PRE_GREEN_1, HIGH);
+    digitalWrite(PIN_PRE_GREEN_2, HIGH);
 }
 
 void SignalController::blinkId(uint8_t id) {
@@ -42,8 +46,10 @@ void SignalController::blinkId(uint8_t id) {
 void SignalController::allOff() {
     digitalWrite(PIN_LED_RED, LOW);
     digitalWrite(PIN_LED_GREEN, LOW);
-    digitalWrite(PIN_PRE_LED_1, LOW);
-    digitalWrite(PIN_PRE_LED_2, LOW);
+    digitalWrite(PIN_PRE_YELLOW_1, LOW);
+    digitalWrite(PIN_PRE_YELLOW_2, LOW);
+    digitalWrite(PIN_PRE_GREEN_1, LOW);
+    digitalWrite(PIN_PRE_GREEN_2, LOW);
 }
 
 void SignalController::setMain(MainSignal state) {
@@ -74,16 +80,17 @@ void SignalController::applyMain() {
 }
 
 void SignalController::applyPre() {
-    // Pre-signal: both LEDs same color
-    // YELLOW = LED on (pre-signal LEDs are yellow-colored or will be RGB later)
-    // GREEN = LED off here, separate green LEDs in future
-    // For now with single-color yellow/green LEDs:
-    // PRE_LED_1 = yellow, PRE_LED_2 = green
+    // YELLOW = next signal is RED → yellow pair on, green pair off
+    // GREEN = next signal is GREEN → green pair on, yellow pair off
     if (_pre == PreSignal::YELLOW) {
-        digitalWrite(PIN_PRE_LED_1, HIGH);
-        digitalWrite(PIN_PRE_LED_2, LOW);
+        digitalWrite(PIN_PRE_YELLOW_1, HIGH);
+        digitalWrite(PIN_PRE_YELLOW_2, HIGH);
+        digitalWrite(PIN_PRE_GREEN_1, LOW);
+        digitalWrite(PIN_PRE_GREEN_2, LOW);
     } else {
-        digitalWrite(PIN_PRE_LED_1, LOW);
-        digitalWrite(PIN_PRE_LED_2, HIGH);
+        digitalWrite(PIN_PRE_YELLOW_1, LOW);
+        digitalWrite(PIN_PRE_YELLOW_2, LOW);
+        digitalWrite(PIN_PRE_GREEN_1, HIGH);
+        digitalWrite(PIN_PRE_GREEN_2, HIGH);
     }
 }
