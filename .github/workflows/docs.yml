@@ -6,6 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'docs-site/**'
+      - '.github/workflows/docs.yml'
 
 permissions:
   contents: read
