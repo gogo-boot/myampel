@@ -46,18 +46,31 @@ Development board: **ESP32-C3-DevKitC-02**
 
 ## Sensors
 
-### Train Detection: IR Break-Beam
+### Train Detection: IR Reflective Sensor
 
-- 1× IR LED (transmitter) — one side of track
-- 1× Phototransistor (receiver) — other side of track
-- Train passes between them → beam broken → detection
+The IR sensor uses **reflective detection** — both the IR LED and phototransistor are mounted on the same side (on the signal mast). The IR LED emits a modulated pulse, and the phototransistor detects the reflection from a passing train.
+
+- 1× IR LED (transmitter) — pulsed at 38kHz via PWM
+- 1× Phototransistor (receiver) — detects reflected pulse
+- Both mounted on signal base, pointing toward the track
+- Train reflects the IR pulse back → detection
 
 | Property | Value |
 |----------|-------|
-| Cost | ~€0.50 per pair |
-| Power | ~1 mA (can pulse to save power) |
-| Reliability | Very high — physical interruption, no false triggers |
-| Mounting | Across the track rails |
+| Cost | ~€0.10 (IR LED + phototransistor + resistors) |
+| Power | ~1 mA (pulsed, not continuous) |
+| Range | ~5 cm (reflective) |
+| Mounting | On signal base, pointing toward track |
+| Ambient light rejection | ✅ 38kHz modulation filters ambient light |
+| Crosstalk rejection | ✅ Unique code pattern per signal |
+
+#### How Ambient Light Is Rejected
+
+The ESP32 generates a 38kHz PWM burst with a unique code pattern per signal. The software only accepts reflections matching its own pattern — random ambient light and other signals' IR are ignored.
+
+#### Why Not Break-Beam?
+
+A break-beam sensor requires components on **both sides** of the track (two modules per signal). The reflective approach keeps everything in **one module** — simpler mounting, no alignment across the track needed.
 
 ## Buttons
 
@@ -67,7 +80,7 @@ Development board: **ESP32-C3-DevKitC-02**
 
 ## GPIO Assignment (ESP32-C3-MINI-1)
 
-The ESP32-C3-MINI-1 exposes 15 GPIOs. After reserving USB (GPIO18/19) and UART0 (GPIO20/21), 11 pins remain. We use 9:
+The ESP32-C3-MINI-1 exposes 15 GPIOs. After reserving USB (GPIO18/19) and UART0 (GPIO20/21), 11 pins remain. We use 10:
 
 | GPIO | Function | Direction | Notes |
 |------|----------|-----------|-------|
@@ -79,9 +92,10 @@ The ESP32-C3-MINI-1 exposes 15 GPIOs. After reserving USB (GPIO18/19) and UART0 
 | GPIO5 | Pre-signal Green 2 | Output | JTAG pin, fine as output |
 | GPIO6 | Button Green | Input | Internal pull-up, active low |
 | GPIO7 | Button Red | Input | Internal pull-up, active low |
-| GPIO8 | IR Sensor | Input | Strapping pin, OK as input |
+| GPIO8 | IR Receiver | Input | Strapping pin, OK as input |
+| GPIO9 | IR Transmitter (PWM) | Output | 38kHz modulated pulse |
 
-**Spare pins:** GPIO2 (strapping — can drive IR LED to pulse), GPIO9 (boot mode — leave free or use as wake pin)
+**Spare pins:** GPIO2 (1 pin free)
 
 ### Pin Warnings
 
@@ -113,7 +127,9 @@ ESP32-C3-MINI-1
 │  GPIO8  ──────────────┤── IR Phototransistor
 │                        │   (pull-up, LOW on detect)
 │                        │
-│  3V3    ──────────────┤── IR LED ──[100Ω]── GND
+│  GPIO9  ──[100Ω]──────┤── IR LED ────────── GND
+│                        │   (38kHz PWM modulated)
+│                        │
 │  GND    ──────────────┤── Common ground
 └────────────────────────┘
 ```
@@ -122,8 +138,8 @@ ESP32-C3-MINI-1
 
 - **LEDs**: 220Ω resistor each (at 3.3V → ~5–10 mA per LED)
 - **Buttons**: No external resistor — `INPUT_PULLUP` in firmware, button shorts pin to GND
-- **IR Sensor**: Phototransistor with internal pull-up. Train breaks beam → pin goes LOW
-- **IR LED**: Always-on from 3.3V rail (~1 mA). Optional: drive from GPIO2 to pulse and save power
+- **IR Sensor**: Phototransistor with internal pull-up. Train reflects pulse back → software detects pattern
+- **IR LED**: Driven by GPIO9 at 38kHz PWM with unique code pattern per signal
 
 Pin definitions are in `include/config/pins.h`.
 
