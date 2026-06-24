@@ -68,6 +68,21 @@ The IR sensor uses **reflective detection** — both the IR LED and phototransis
 
 The ESP32 generates a 38kHz PWM burst with a unique code pattern per signal. The software only accepts reflections matching its own pattern — random ambient light and other signals' IR are ignored.
 
+#### Sensor Options Considered
+
+| | TCRT5000 (integrated module) | Separate IR LED + Phototransistor |
+|---|---|---|
+| **Package** | LED + receiver in one housing (10×6×7mm) | Two separate 3mm/5mm components |
+| **Range** | 1–25 mm (optimal ~5mm) | ~5–10 cm (with modulated pulse) |
+| **Alignment** | Factory-aligned, fixed angle | You aim them — more flexible |
+| **Modulation** | No built-in filtering | Works with 38kHz PWM + software pattern |
+| **Spacing control** | Fixed (~3mm between LED and receiver) | You choose (15–20mm for 5cm range) |
+| **Ambient rejection** | Poor (bare phototransistor) | ✅ Good (with modulated pulse + code) |
+| **Price** | ~€0.30 | ~€0.10 |
+| **Best for** | Short range (under 2cm), line following | **Train detection at ~5cm** ✅ |
+
+**Decision:** Separate IR LED + phototransistor. The TCRT5000's short range (~2.5cm max) is insufficient — a child may place the signal 3–5cm from the track. Separate components allow wider spacing and longer detection range with modulated pulses.
+
 #### Why Not Break-Beam?
 
 A break-beam sensor requires components on **both sides** of the track (two modules per signal). The reflective approach keeps everything in **one module** — simpler mounting, no alignment across the track needed.
