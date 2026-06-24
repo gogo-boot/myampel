@@ -27,9 +27,14 @@ sidebar_position: 11
 | Item | With XIAO | Without XIAO |
 |------|-----------|--------------|
 | 4× signal masts | €33.60 | €25.60 |
-| Breadboard + jumper wires | €5.00 | €5.00 |
+| Dupont jumper wires (F-F, 20cm) | €2.00 | €2.00 |
+| Heat shrink tubing (assorted) | €3.00 | €3.00 |
 | USB-C cable | €2.00 | €2.00 |
 | **Grand total** | **€40.60** | **€32.60** |
+
+:::warning Insulate your resistors
+Bare resistor legs can short each other inside the narrow mast pole. Cover each resistor with heat shrink tubing to prevent shorts — a short bypasses the resistor and can burn out LEDs or damage GPIO pins.
+:::
 
 ## Trade-offs
 
