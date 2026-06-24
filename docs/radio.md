@@ -86,6 +86,18 @@ Uses a separate radio module (SX1262) connected via SPI.
 - Needs external antenna
 - More GPIO pins required (7 total for SPI + control)
 
+:::info Important: SX1262 is a separate radio module
+The SX1262 is **not a microcontroller** — it has no CPU and runs no code. It is a radio peripheral that your ESP32 controls via SPI commands. Think of it like an LED or sensor: you wire it to your ESP32 and send commands from your firmware.
+
+This means sub-GHz adds cost and complexity:
+- You still need an ESP32-C3 (~€1.50) as the brain
+- Plus the SX1262 module (~€3) as the radio
+- Plus an antenna matched to your frequency
+- Plus 7 GPIO pins for the SPI connection
+
+**Combined modules exist** (ESP32 + SX1262 on one board, e.g., Heltec HT-CT62) but cost ~€8–15 — significantly more than a standalone ESP32-C3 (~€1.50).
+:::
+
 ## Range Comparison
 
 At **equal transmit power**, lower frequency = longer range because:
