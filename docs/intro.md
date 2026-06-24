@@ -41,3 +41,4 @@ When a toy train passes a signal, the main signal turns RED. The previous signal
 - [Lifecycle](./lifecycle) — Boot stages and power management
 - [Pairing](./pairing) — How signals find each other
 - [Signal Logic](./signal-logic) — German signal rules and behavior
+- [Radio & Frequency](./radio) — 433 MHz, 868 MHz, 2.4 GHz comparison
