@@ -97,20 +97,22 @@ A break-beam sensor requires components on **both sides** of the track (two modu
 
 The ESP32-C3-MINI-1 exposes 15 GPIOs. After reserving USB (GPIO18/19) and UART0 (GPIO20/21), 11 pins remain. We use 10:
 
-| GPIO | Function | Direction | Notes |
-|------|----------|-----------|-------|
-| GPIO0 | Red LED (main) | Output | Safe pin |
-| GPIO1 | Green LED (main) | Output | Safe pin |
-| GPIO3 | Pre-signal Yellow 1 | Output | Safe pin |
-| GPIO10 | Pre-signal Yellow 2 | Output | Safe pin |
-| GPIO4 | Pre-signal Green 1 | Output | JTAG pin, fine as output |
-| GPIO5 | Pre-signal Green 2 | Output | JTAG pin, fine as output |
-| GPIO6 | Button Green | Input | Internal pull-up, active low |
-| GPIO7 | Button Red | Input | Internal pull-up, active low |
-| GPIO8 | IR Receiver | Input | Strapping pin, OK as input |
-| GPIO9 | IR Transmitter (PWM) | Output | 38kHz modulated pulse |
+The same GPIOs are used on both boards — only the main signal LEDs differ because XIAO doesn't expose GPIO0/1:
 
-**Spare pins:** GPIO2 (1 pin free)
+| GPIO | Function | Direction | Notes | Super Mini | XIAO ESP32C3 |
+|------|----------|-----------|-------|------------|--------------|
+| GPIO0 | 🔴 Red LED (main) | Output | Safe pin | GPIO0 | **GPIO20 (D7)** ⚠️ |
+| GPIO1 | 🟢 Green LED (main) | Output | Safe pin | GPIO1 | **GPIO21 (D6)** ⚠️ |
+| GPIO3 | 🟡 Pre-signal Yellow 1 | Output | Safe pin | GPIO3 | GPIO3 (D1) |
+| GPIO10 | 🟡 Pre-signal Yellow 2 | Output | Safe pin | GPIO10 | GPIO10 (D10) |
+| GPIO4 | 🟢 Pre-signal Green 1 | Output | JTAG pin, fine as output | GPIO4 | GPIO4 (D2) |
+| GPIO5 | 🟢 Pre-signal Green 2 | Output | JTAG pin, fine as output | GPIO5 | GPIO5 (D3) |
+| GPIO6 | Button Green | Input | Internal pull-up, active low | GPIO6 | GPIO6 (D4) |
+| GPIO7 | Button Red | Input | Internal pull-up, active low | GPIO7 | GPIO7 (D5) |
+| GPIO8 | IR Receiver | Input | Strapping pin, OK as input | GPIO8 | GPIO8 (D8) |
+| GPIO9 | IR Transmitter (PWM) | Output | 38kHz modulated pulse | GPIO9 | GPIO9 (D9) |
+
+**Spare:** GPIO2 (1 pin free)
 
 ### Pin Warnings
 
