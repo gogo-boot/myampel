@@ -21,3 +21,6 @@
 
 // IR Sensor (active low — goes LOW when beam broken)
 #define PIN_IR_SENSOR     8
+
+// IR Transmitter (38kHz PWM modulated)
+#define PIN_IR_TX         9
