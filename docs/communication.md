@@ -55,6 +55,14 @@ Every signal broadcasts its current main state every 2 seconds — even if nothi
 
 **Worst case**: A signal shows wrong pre-signal state for up to 2 seconds.
 
+**Why 2 seconds?** A balance between responsiveness and efficiency:
+
+- State changes are delivered instantly (~5ms) via ACK+retry — the heartbeat is only a backup if that message was lost
+- A kid won't notice a 2s delay on a pre-signal correction
+- Low radio traffic (1800 messages/hour per signal — trivial for ESP-NOW)
+- At 2s, duty cycle is 0.8% — still legal on 868 MHz if migrating to LoRa later
+- Shorter (500ms) wastes battery; longer (10s) feels "broken" to the user
+
 ### 2. ACK + Retry (on state change)
 
 When a signal's main state changes (the important event):
