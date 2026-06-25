@@ -36,6 +36,15 @@ struct SignalMessage {
 
 Total: 4 bytes per message. Minimal air time.
 
+### Why `sequence`?
+
+Duplicate detection. ESP-NOW can deliver the same message twice (sender retry + original both arrive). The receiver checks: "Did I already process sequence #42 from signal #3?" If yes, ignore. Without this, a single train passing could trigger two RED events.
+
+### Why `uint8_t` instead of `bool` for `main_state`?
+
+- **Extensibility** — if a YELLOW or OFF state is added later, bool can't represent it. uint8_t gives 256 possible values at no extra cost.
+- **Predictable size** — `bool` size is compiler-dependent (1 or 4 bytes). Using `uint8_t` guarantees the struct is exactly 4 bytes with a known layout — important when sending raw bytes over the air.
+
 ## Reliability Layer
 
 Since ESP-NOW can lose messages, we add two mechanisms:
