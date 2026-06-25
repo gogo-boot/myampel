@@ -34,6 +34,29 @@ Signal 4 ◀── Signal 3
 
 Signal 4's next signal is Signal 1. Every signal behaves identically.
 
+### Station (Multi-Platform)
+
+```
+                    ┌── Signal 2.1 (platform 1) ──┐
+Signal 1 ──────────┼── Signal 2.2 (platform 2) ──┼── Signal 3
+                    └── Signal 2.3 (platform 3) ──┘
+```
+
+Station signals share a track section with multiple platforms.
+
+**Rules:**
+- Signal 3 is RED → all platform signals (2.1, 2.2, 2.3) show YELLOW pre-signal
+- Signal 1 shows pre-signal of whichever platform signal is on the active route
+- Each platform signal operates independently (own train detection)
+
+**Station mode is auto-detected** — no special configuration needed. A signal with 2+ paired next-peers automatically behaves as a station entry signal.
+
+| Stored next-peers | Mode | Pre-signal behavior |
+|---|---|---|
+| 0 | Unpaired | Enter pairing mode |
+| 1 | Normal (line/loop) | Shows that one peer's main state |
+| 2+ | Station entry | Shows active route peer's main state |
+
 ## State Machine
 
 Each signal's main signal has two states:
