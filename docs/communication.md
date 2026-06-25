@@ -75,3 +75,46 @@ If no response within 2 seconds: assume GREEN (safe default — pre-signal shows
 - Max **20 unencrypted peers**
 - Payload max 250 bytes (we use 4 bytes)
 - Range: ~50m indoor, ~200m open air
+
+## Future Option: Sub-GHz LoRa (SX1262)
+
+ESP-NOW is the current implementation. For longer range and better battery life, a sub-GHz LoRa radio (SX1262) is a possible future upgrade. See [Radio & Frequency Options](./radio) for the full comparison.
+
+### Summary
+
+| | ESP-NOW (current) | LoRa SX1262 (future) |
+|---|---|---|
+| Frequency | 2.4 GHz | 433 or 868 MHz |
+| Range | ~50m indoor, ~200m open | ~300-500m+ |
+| RX idle current | 20 mA | 4.5 mA |
+| Latency | ~5 ms | ~20-50 ms |
+| Extra hardware | None | SX1262 module (~€3) |
+| Duty cycle | No limit | 433: ≤10%, 868: ≤1% |
+| Wall penetration | Worst | Best (433 MHz) |
+
+### Duty Cycle
+
+In Europe, sub-GHz bands have legal limits on how long you may transmit per hour:
+
+- **868 MHz**: Max 1% → 36 seconds of TX per hour
+- **433 MHz**: Max 10% → 360 seconds of TX per hour
+- **2.4 GHz (ESP-NOW)**: No limit
+
+With a 5-second heartbeat and ~15ms per message, MyAmpel uses ~0.3% duty cycle — legal on both bands. A 2-second heartbeat (like the current ESP-NOW implementation) would use ~0.8% — still legal on 868 MHz but tight. The 433 MHz band has plenty of headroom.
+
+### Migration Path
+
+The firmware architecture is decoupled from the radio layer. Swapping ESP-NOW for LoRa requires replacing `EspNowManager` with a `LoRaManager` using the RadioLib library — no changes to signal logic, LEDs, or buttons.
+
+```ini
+# platformio.ini addition for LoRa
+lib_deps =
+    jgromes/RadioLib@^7.6.0
+```
+
+### Why Not LoRa Now?
+
+- ESP-NOW needs no extra hardware — simplest first implementation
+- Range (~50m) is more than enough for a toy in the same room
+- LoRa adds cost (+€3/signal), wiring (7 SPI pins), and a separate antenna
+- Can be added later without changing the rest of the firmware
