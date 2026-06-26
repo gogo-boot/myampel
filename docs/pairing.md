@@ -12,6 +12,8 @@ Pairing connects two signals so they know each other. Signal A needs to know: "S
 
 Each signal only needs **one peer**: the next signal in the chain. Pairing stores the next signal's MAC address in NVS.
 
+Pairing is **not a connection** — there is no handshake, no link, no registration between devices. It simply tells a signal "this is the MAC address you should listen for in broadcasts." The next signal doesn't know or care who is listening to it — it just broadcasts its state to everyone. The paired signal filters incoming broadcasts by MAC address and only reacts to its known peer.
+
 ## Pairing Flow
 
 ### Step 1: Enter Pairing Mode
