@@ -35,7 +35,7 @@ MyAmpel replicates simplified Deutsche Bahn signal rules:
 GREEN ─────────────────────────────▶ RED
   ▲                                   │
   │     Next signal detects train     │
-  │     (= train left this block)    │
+  │     (= train left this block)     │
   │         or timer expires (30s)    │
   │         or green button           │
   └───────────────────────────────────┘

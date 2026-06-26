@@ -133,7 +133,7 @@ ESP32-C3-MINI-1
 │  GPIO1  ──[220Ω]──────┤── 🟢 Green LED ──── GND
 │                        │
 │  GPIO3  ──[220Ω]──────┤── 🟡 Yellow LED 1 ─ GND
-│  GPIO10 ──[220Ω]─────┤── 🟡 Yellow LED 2 ─ GND
+│  GPIO10 ──[220Ω]──────┤── 🟡 Yellow LED 2 ─ GND
 │  GPIO4  ──[220Ω]──────┤── 🟢 Green LED 1 ── GND
 │  GPIO5  ──[220Ω]──────┤── 🟢 Green LED 2 ── GND
 │                        │
