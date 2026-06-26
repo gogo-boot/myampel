@@ -11,32 +11,69 @@ static ButtonHandler buttons;
 static EspNowManager comm;
 static TrainDetector detector;
 
-static uint32_t lastHeartbeat = 0;
+// === Pairing Mode Logic ===
+static bool inPairing = false;
 
-void handleRunning() {
+static void handlePairing() {
+    if (!inPairing) return;
+
+    comm.update();
+    buttons.update();
+
+    // Green button → offer self as "next signal"
+    if (buttons.greenEvent() == ButtonEvent::SHORT_PRESS) {
+        comm.sendPairOffer();
+    }
+
+    // Red button → accept incoming offer
+    if (buttons.redEvent() == ButtonEvent::SHORT_PRESS && comm.hasPairOffer()) {
+        comm.acceptPairOffer();
+        // Flash green to confirm
+        signalCtrl.identifyFlash();
+    }
+
+    // Timeout → exit
+    if (comm.pairingTimedOut()) {
+        comm.exitPairing();
+        inPairing = false;
+    }
+}
+
+// === Running Mode Logic ===
+static void handleRunning() {
     if (lifecycle.stage() != Stage::RUNNING) return;
+
+    // Check for pairing mode entry (both buttons held 3s)
+    if (buttons.bothHeldTriggered()) {
+        comm.enterPairing();
+        inPairing = true;
+        signalCtrl.allOff();
+        return;
+    }
+
+    if (inPairing) {
+        handlePairing();
+        return;
+    }
 
     // Train detection → RED
     if (detector.triggered()) {
         signalCtrl.setMain(MainSignal::RED);
-        comm.sendState(1, MainSignal::RED);
     }
 
-    // Button: green → GREEN
+    // Green button → force GREEN
     if (buttons.greenEvent() == ButtonEvent::SHORT_PRESS) {
         signalCtrl.setMain(MainSignal::GREEN);
-        comm.sendState(1, MainSignal::GREEN);
     }
 
-    // Button: red → RED
+    // Red button → force RED
     if (buttons.redEvent() == ButtonEvent::SHORT_PRESS) {
         signalCtrl.setMain(MainSignal::RED);
-        comm.sendState(1, MainSignal::RED);
     }
 
-    // Auto-green timer expired → broadcast
-    if (signalCtrl.mainState() == MainSignal::GREEN && signalCtrl.redTimerExpired()) {
-        comm.sendState(1, MainSignal::GREEN);
+    // Next signal detected train → our block is clear
+    if (comm.peerDetectedTrain()) {
+        signalCtrl.notifyBlockClear();
     }
 
     // Receive peer state → update pre-signal
@@ -46,11 +83,10 @@ void handleRunning() {
         signalCtrl.setPre(pre);
     }
 
-    // Heartbeat broadcast every 2s
-    uint32_t now = millis();
-    if (now - lastHeartbeat >= HEARTBEAT_INTERVAL_MS) {
-        lastHeartbeat = now;
-        comm.sendState(1, signalCtrl.mainState());
+    // Broadcast on state change
+    if (signalCtrl.mainChanged()) {
+        comm.sendState(signalCtrl.mainState());
+        signalCtrl.clearMainChanged();
     }
 }
 

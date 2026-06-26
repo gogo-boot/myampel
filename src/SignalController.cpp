@@ -15,7 +15,7 @@ void SignalController::begin() {
 }
 
 void SignalController::update() {
-    if (_redTimerActive && redTimerExpired()) {
+    if (_redTimerActive && (millis() - _redTimerStart >= AUTO_GREEN_TIMER_MS)) {
         _redTimerActive = false;
         setMain(MainSignal::GREEN);
         ESP_LOGI(TAG, "Auto-green timer expired");
@@ -31,16 +31,10 @@ void SignalController::selfTest() {
     digitalWrite(PIN_PRE_GREEN_2, HIGH);
 }
 
-void SignalController::blinkId(uint8_t id) {
-    // Non-blocking blink handled via millis in a simple way:
-    // Called once, blinks synchronously during IDENTIFY stage
-    for (uint8_t i = 0; i < id; i++) {
-        digitalWrite(PIN_LED_RED, HIGH);
-        digitalWrite(PIN_LED_GREEN, HIGH);
-        delay(IDENTIFY_BLINK_MS);
-        allOff();
-        delay(IDENTIFY_BLINK_MS);
-    }
+void SignalController::identifyFlash() {
+    digitalWrite(PIN_LED_GREEN, HIGH);
+    delay(IDENTIFY_DURATION_MS);
+    digitalWrite(PIN_LED_GREEN, LOW);
 }
 
 void SignalController::allOff() {
@@ -53,25 +47,32 @@ void SignalController::allOff() {
 }
 
 void SignalController::setMain(MainSignal state) {
-    _main = state;
-    applyMain();
-    if (state == MainSignal::RED) {
-        startRedTimer();
+    if (_main != state) {
+        _main = state;
+        _mainChanged = true;
+        applyMain();
+        if (state == MainSignal::RED) {
+            _redTimerStart = millis();
+            _redTimerActive = true;
+        } else {
+            _redTimerActive = false;
+        }
+        ESP_LOGI(TAG, "Main → %s", state == MainSignal::RED ? "RED" : "GREEN");
     }
 }
 
 void SignalController::setPre(PreSignal state) {
-    _pre = state;
-    applyPre();
+    if (_pre != state) {
+        _pre = state;
+        applyPre();
+    }
 }
 
-void SignalController::startRedTimer() {
-    _redTimerStart = millis();
-    _redTimerActive = true;
-}
-
-bool SignalController::redTimerExpired() const {
-    return millis() - _redTimerStart >= AUTO_GREEN_TIMER_MS;
+void SignalController::notifyBlockClear() {
+    if (_main == MainSignal::RED) {
+        setMain(MainSignal::GREEN);
+        ESP_LOGI(TAG, "Block clear → GREEN");
+    }
 }
 
 void SignalController::applyMain() {
@@ -80,8 +81,6 @@ void SignalController::applyMain() {
 }
 
 void SignalController::applyPre() {
-    // YELLOW = next signal is RED → yellow pair on, green pair off
-    // GREEN = next signal is GREEN → green pair on, yellow pair off
     if (_pre == PreSignal::YELLOW) {
         digitalWrite(PIN_PRE_YELLOW_1, HIGH);
         digitalWrite(PIN_PRE_YELLOW_2, HIGH);

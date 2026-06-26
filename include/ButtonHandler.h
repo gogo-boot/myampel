@@ -1,31 +1,29 @@
 #pragma once
 #include "signal_types.h"
-#include <cstdint>
 
 class ButtonHandler {
 public:
     void begin();
     void update();
-
     ButtonEvent greenEvent();
     ButtonEvent redEvent();
-
     bool bothHeld() const { return _bothHeld; }
+    bool bothHeldTriggered();
 
 private:
-    struct ButtonState {
+    struct BtnState {
         uint8_t pin = 0;
         bool lastReading = true;
-        bool stable = true;
+        bool pressed = false;
         uint32_t lastChange = 0;
         uint32_t pressStart = 0;
-        bool pressed = false;
         ButtonEvent event = ButtonEvent::NONE;
     };
+    void updateBtn(BtnState& b);
 
-    void updateButton(ButtonState& btn);
-
-    ButtonState _green;
-    ButtonState _red;
+    BtnState _green;
+    BtnState _red;
     bool _bothHeld = false;
+    bool _bothHeldFired = false;
+    uint32_t _bothHeldStart = 0;
 };
