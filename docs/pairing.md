@@ -76,9 +76,11 @@ The signal ID is only used for the IDENTIFY blink at boot. Communication uses MA
 ## Re-Pairing
 
 To change a signal's peer:
-1. Enter pairing mode again
-2. New pairing overwrites the stored MAC in NVS
-3. Old pairing is forgotten
+1. Enter pairing mode (hold both buttons 3s) — **clears all stored peers**
+2. Pair with the new signal(s)
+3. Exit pairing mode (timeout or press both buttons again)
+
+Entering pairing mode always starts fresh — old peers are erased. This prevents confusion between "replace" and "add."
 
 ## Timeout
 
@@ -87,9 +89,51 @@ If no pairing is completed within 30 seconds of entering pairing mode:
 - Return to previous state (RUNNING or CONNECT)
 - LEDs return to normal
 
+**Timeout extension:** Each successful pairing resets the 30-second timeout. This gives time to prepare the next signal for station mode (pair multiple platforms without rushing).
+
 ## First Boot (Unpaired)
 
 If a signal has never been paired (NVS empty):
 - After BOOT and CONFIG stages detect empty NVS
 - Automatically enter pairing mode
 - Stay in pairing mode until paired or powered off
+
+## Station Pairing (Multi-Platform)
+
+Station mode uses the **same pairing flow** as normal mode — just repeated for each platform signal. The firmware auto-detects station mode when multiple next-peers are stored.
+
+### Example: Signal 1 → 3 platforms → Signal 3
+
+**Step 1–3: Pair Signal 1 to all platform signals**
+
+| Step | Green button ("I am next") | Red button ("I accept") | Result |
+|------|---|---|---|
+| 1 | Signal 2.1 | Signal 1 | Signal 1 stores 2.1 as route option |
+| 2 | Signal 2.2 | Signal 1 | Signal 1 adds 2.2 (now has 2 peers → station mode) |
+| 3 | Signal 2.3 | Signal 1 | Signal 1 adds 2.3 (3 peers) |
+
+**Step 4–6: Pair each platform signal to Signal 3**
+
+| Step | Green button ("I am next") | Red button ("I accept") | Result |
+|------|---|---|---|
+| 4 | Signal 3 | Signal 2.1 | 2.1 stores Signal 3 as its next |
+| 5 | Signal 3 | Signal 2.2 | 2.2 stores Signal 3 as its next |
+| 6 | Signal 3 | Signal 2.3 | 2.3 stores Signal 3 as its next |
+
+### How Station Mode Is Detected
+
+No manual configuration needed. The firmware counts stored peers:
+
+- **1 peer** → normal mode (line/loop)
+- **2+ peers** → station entry mode (listens to all, shows active route)
+
+### Active Route Selection
+
+Signal 1 (station entry) determines the active route by:
+- Which platform signal most recently changed to RED (train detected there)
+- Or: manual override by pressing a button on a specific platform signal
+
+### Resetting to Normal Mode
+
+To remove extra peers and go back to normal mode:
+- Re-pair with only one signal — overwrites all stored peers

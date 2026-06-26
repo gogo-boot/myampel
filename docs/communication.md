@@ -93,6 +93,20 @@ If no response within 2 seconds: assume GREEN (safe default — pre-signal shows
 - Payload max 250 bytes (we use 4 bytes)
 - Range: ~50m indoor, ~200m open air
 
+:::note
+The peer limit only applies to **unicast** (sending to a specific MAC). **Broadcast** (to `FF:FF:FF:FF:FF:FF`) has no limit — unlimited signals can receive a broadcast. MyAmpel uses broadcast for heartbeats, so station mode with many platform signals works without hitting the 20-peer limit.
+:::
+
+## Station Mode Communication
+
+In station mode, signals use **broadcast** (no peer limit) so all platform signals and entry signals communicate freely.
+
+- Each platform signal **broadcasts** its main state (same as normal)
+- Each platform signal **listens to** its next signal (Signal 3) for pre-signal
+- Signal 1 (station entry) **listens to all platform signals** and shows pre-signal of the active route
+
+No special messages needed — the same `SignalMessage` struct works. Signal 1 just filters by multiple known peer IDs instead of one.
+
 ## Future Option: Sub-GHz LoRa (SX1262)
 
 ESP-NOW is the current implementation. For longer range and better battery life, a sub-GHz LoRa radio (SX1262) is a possible future upgrade. See [Radio & Frequency Options](./radio) for the full comparison.
