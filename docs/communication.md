@@ -66,9 +66,20 @@ Every signal broadcasts its current main state every 2 seconds — even if nothi
 ### 2. ACK + Retry (on state change)
 
 When a signal's main state changes (the important event):
-1. Send state change message
+1. Send state change message **immediately** (no waiting for next heartbeat)
 2. Wait for ACK (ESP-NOW provides frame-level ACK)
 3. If no ACK: retry up to 3 times with 50ms delay
+
+**Example timing:**
+
+```
+Time 0.000s  Train detected → main signal → RED
+Time 0.001s  Broadcast "I am RED" immediately    ← instant, not waiting for heartbeat
+Time 2.000s  Heartbeat broadcast "I am RED"      ← backup in case first was missed
+Time 4.000s  Heartbeat broadcast "I am RED"      ← keeps repeating
+```
+
+The heartbeat is only there to catch missed messages. Real state changes go out instantly, whether broadcast or unicast.
 
 ### 3. State Request on Boot
 
