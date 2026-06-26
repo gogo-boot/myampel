@@ -16,7 +16,7 @@ The LifecycleManager is a dedicated class that sequences the device through boot
 ├──────────────────────────────────────────────────────────┤
 │  CONFIG     Load signal ID + peer MAC from NVS           │
 ├──────────────────────────────────────────────────────────┤
-│  IDENTIFY   Blink signal number (e.g., 3× = Signal #3)  │
+│  IDENTIFY   Flash green to confirm ready                 │
 ├──────────────────────────────────────────────────────────┤
 │  CONNECT    Init ESP-NOW, register peers, request state  │
 ├──────────────────────────────────────────────────────────┤
@@ -43,9 +43,9 @@ The LifecycleManager is a dedicated class that sequences the device through boot
 
 ### IDENTIFY
 
-- Blink all LEDs N times, where N = `signal_id`
-- Allows the user to visually verify which physical signal is which number
-- Duration: N × 500 ms
+- Flash green LED briefly to confirm the signal is ready
+- Allows the user to visually confirm the device booted successfully
+- Duration: ~500 ms
 
 ### CONNECT
 
