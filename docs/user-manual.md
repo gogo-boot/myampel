@@ -61,9 +61,19 @@ When you override a signal manually:
 
 | Action | What it does |
 |--------|-------------|
-| Hold **both buttons** for 3 seconds | Enter pairing mode (lights blink fast) |
+| Hold **both buttons** for 3 seconds | Enter pairing mode (all stored peers are cleared, lights blink fast) |
 | In pairing mode: press 🟢 Green | "I am the next signal" — offers itself to a partner |
 | In pairing mode: press 🔴 Red | "I accept" — stores the partner as the next signal |
+
+Each successful pairing extends the 30-second timeout so you have time to prepare the next signal.
+
+**Example:** To pair Signal 1 → Signal 2:
+1. Both signals: hold both buttons 3s → lights blink fast
+2. Signal 2: press green ("I am the next signal")
+3. Signal 1: press red ("I accept you as my next")
+4. Both flash green to confirm → done
+
+**Station mode (multiple platforms):** Repeat pairing on the same signal to add more peers. A signal with 2+ peers automatically becomes a station entry signal.
 
 Pairing tells each signal who its neighbor is. See [Pairing](./pairing) for step-by-step setup.
 
