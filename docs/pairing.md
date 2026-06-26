@@ -76,9 +76,11 @@ The signal ID is only used for the IDENTIFY blink at boot. Communication uses MA
 ## Re-Pairing
 
 To change a signal's peer:
-1. Enter pairing mode again
-2. New pairing overwrites the stored MAC in NVS
-3. Old pairing is forgotten
+1. Enter pairing mode (hold both buttons 3s) — **clears all stored peers**
+2. Pair with the new signal(s)
+3. Exit pairing mode (timeout or press both buttons again)
+
+Entering pairing mode always starts fresh — old peers are erased. This prevents confusion between "replace" and "add."
 
 ## Timeout
 
@@ -86,6 +88,8 @@ If no pairing is completed within 30 seconds of entering pairing mode:
 - Exit pairing mode
 - Return to previous state (RUNNING or CONNECT)
 - LEDs return to normal
+
+**Timeout extension:** Each successful pairing resets the 30-second timeout. This gives time to prepare the next signal for station mode (pair multiple platforms without rushing).
 
 ## First Boot (Unpaired)
 
