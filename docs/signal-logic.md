@@ -34,10 +34,17 @@ MyAmpel replicates simplified Deutsche Bahn signal rules:
               or red button
 GREEN ─────────────────────────────▶ RED
   ▲                                   │
-  │     Timer expires (30s default)   │
+  │     Next signal detects train     │
+  │     (= train left this block)    │
+  │         or timer expires (30s)    │
   │         or green button           │
   └───────────────────────────────────┘
 ```
+
+**RED → GREEN triggers (in priority order):**
+1. **Next signal detects train** — the train has left this block section and arrived at the next signal. This is the realistic, preferred clear condition.
+2. **Timer expires (30s)** — fallback in case the next signal's IR sensor misses the train. Prevents a signal from staying RED forever.
+3. **Green button** — manual override by the user.
 
 ### Pre-Signal
 
@@ -52,17 +59,23 @@ No timer, no button, no local logic. Just reflects what it hears from ESP-NOW.
 
 ## Train Detection Sequence
 
-When a train passes Signal 2:
+When a train passes Signal 2 and continues to Signal 3:
 
 ```
 Time 0.000s  IR sensor triggered on Signal 2
 Time 0.001s  Signal 2 main → RED
 Time 0.005s  ESP-NOW broadcast: "Signal 2 is RED"
 Time 0.005s  Signal 1 receives → pre-signal → YELLOW
-Time 30.00s  Signal 2 timer expires → main → GREEN
-Time 30.00s  ESP-NOW broadcast: "Signal 2 is GREEN"
-Time 30.00s  Signal 1 receives → pre-signal → GREEN
+  ...train travels toward Signal 3...
+Time 15.00s  IR sensor triggered on Signal 3 (train arrived)
+Time 15.00s  Signal 3 broadcasts: "Signal 3 is RED"
+Time 15.00s  Signal 2 receives: "my next signal detected train → my block is clear"
+Time 15.00s  Signal 2 main → GREEN
+Time 15.00s  ESP-NOW broadcast: "Signal 2 is GREEN"
+Time 15.00s  Signal 1 receives → pre-signal → GREEN
 ```
+
+If the next signal's sensor misses the train, the 30s timer clears Signal 2 as fallback.
 
 ## Manual Override
 
