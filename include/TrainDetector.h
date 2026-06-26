@@ -1,15 +1,18 @@
 #pragma once
 #include "signal_types.h"
-#include <cstdint>
 
 class TrainDetector {
 public:
-    void begin();
+    void begin(uint8_t signalId);
     void update();
     bool triggered() const { return _triggered; }
 
 private:
+    void sendBurst();
+    bool readReflection();
+
+    uint8_t _signalId = 1;
     bool _triggered = false;
-    bool _lastState = true;  // HIGH = no train (pull-up)
-    uint32_t _lastChange = 0;
+    uint32_t _lastDetect = 0;
+    uint32_t _lastCheck = 0;
 };

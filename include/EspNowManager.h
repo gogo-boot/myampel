@@ -1,39 +1,60 @@
 #pragma once
 #include "signal_types.h"
-#include <cstdint>
 
 class EspNowManager {
 public:
-    void begin();
+    void begin(uint8_t signalId);
     void update();
-    void setPeer(const uint8_t mac[6]);
+    void sendState(MainSignal state);
     void requestState();
-    void sendState(uint8_t signalId, MainSignal state);
-    bool hasPeerState() const { return _hasPeerState; }
-    bool received() const { return _received; }
-
-    // Get received data
-    MainSignal peerMainState() const { return _peerMain; }
-    bool isPairOffer() const { return _isPairOffer; }
-    void getPeerMac(uint8_t mac[6]) const;
 
     // Pairing
-    void sendPairOffer(uint8_t signalId);
-    void sendPairAccept(uint8_t signalId);
+    void enterPairing();
+    void exitPairing();
+    void sendPairOffer();
+    void sendPairAccept(const uint8_t* mac);
+    bool isPairing() const { return _pairing; }
+    bool pairingTimedOut() const;
+    bool hasPairOffer() const { return _hasPairOffer; }
+    void acceptPairOffer();
+    void getPairOfferMac(uint8_t mac[6]) const;
+
+    // Reception
+    bool hasPeerState() const { return _hasPeerState; }
+    bool received() const { return _received; }
+    MainSignal peerMainState() const { return _peerMain; }
+    bool peerDetectedTrain() const { return _peerDetectedTrain; }
+
+    // Peer management
+    void clearPeers();
+    void addPeer(const uint8_t mac[6]);
+    void loadPeersFromNvs();
+    void savePeersToNvs();
+    uint8_t peerCount() const { return _peerCount; }
 
 private:
     static void onReceive(const uint8_t* mac, const uint8_t* data, int len);
-    void send(const SignalMessage& msg);
+    void broadcast(const SignalMessage& msg);
 
-    uint8_t _peerMac[6] = {};
-    bool _peerRegistered = false;
-    bool _hasPeerState = false;
-    bool _received = false;
-    bool _isPairOffer = false;
-    MainSignal _peerMain = MainSignal::GREEN;
+    static EspNowManager* _instance;
+    uint8_t _signalId = 1;
     uint8_t _sequence = 0;
     uint32_t _lastHeartbeat = 0;
 
-    // Static instance pointer for callback
-    static EspNowManager* _instance;
+    // Peers
+    uint8_t _peers[MAX_PEERS][6] = {};
+    uint8_t _peerCount = 0;
+
+    // Pairing state
+    bool _pairing = false;
+    uint32_t _pairingStart = 0;
+    bool _hasPairOffer = false;
+    uint8_t _pairOfferMac[6] = {};
+
+    // Received state
+    bool _hasPeerState = false;
+    bool _received = false;
+    bool _peerDetectedTrain = false;
+    MainSignal _peerMain = MainSignal::GREEN;
+    uint8_t _lastSequence[MAX_PEERS] = {};
 };

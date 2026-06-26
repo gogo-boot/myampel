@@ -12,11 +12,27 @@ void ButtonHandler::begin() {
 void ButtonHandler::update() {
     _green.event = ButtonEvent::NONE;
     _red.event = ButtonEvent::NONE;
-    updateButton(_green);
-    updateButton(_red);
+    updateBtn(_green);
+    updateBtn(_red);
 
-    // Both held detection
-    _bothHeld = !digitalRead(PIN_BTN_GREEN) && !digitalRead(PIN_BTN_RED);
+    bool bothNow = !digitalRead(PIN_BTN_GREEN) && !digitalRead(PIN_BTN_RED);
+    if (bothNow && !_bothHeld) {
+        _bothHeld = true;
+        _bothHeldStart = millis();
+        _bothHeldFired = false;
+    } else if (!bothNow) {
+        _bothHeld = false;
+        _bothHeldFired = false;
+    }
+}
+
+bool ButtonHandler::bothHeldTriggered() {
+    if (_bothHeld && !_bothHeldFired &&
+        (millis() - _bothHeldStart >= BUTTON_LONG_PRESS_MS)) {
+        _bothHeldFired = true;
+        return true;
+    }
+    return false;
 }
 
 ButtonEvent ButtonHandler::greenEvent() {
@@ -31,29 +47,21 @@ ButtonEvent ButtonHandler::redEvent() {
     return e;
 }
 
-void ButtonHandler::updateButton(ButtonState& btn) {
-    bool reading = digitalRead(btn.pin);  // LOW = pressed (active low)
+void ButtonHandler::updateBtn(BtnState& b) {
+    bool reading = digitalRead(b.pin);
     uint32_t now = millis();
 
-    if (reading != btn.lastReading) {
-        btn.lastChange = now;
-    }
-    btn.lastReading = reading;
+    if (reading != b.lastReading) b.lastChange = now;
+    b.lastReading = reading;
+    if (now - b.lastChange < BUTTON_DEBOUNCE_MS) return;
 
-    if (now - btn.lastChange < BUTTON_DEBOUNCE_MS) return;
-
-    bool pressed = !reading;  // active low
-
-    if (pressed && !btn.pressed) {
-        // Just pressed
-        btn.pressed = true;
-        btn.pressStart = now;
-    } else if (!pressed && btn.pressed) {
-        // Just released
-        btn.pressed = false;
-        uint32_t duration = now - btn.pressStart;
-        btn.event = (duration >= BUTTON_LONG_PRESS_MS)
-            ? ButtonEvent::LONG_PRESS
-            : ButtonEvent::SHORT_PRESS;
+    bool pressed = !reading;
+    if (pressed && !b.pressed) {
+        b.pressed = true;
+        b.pressStart = now;
+    } else if (!pressed && b.pressed) {
+        b.pressed = false;
+        uint32_t dur = now - b.pressStart;
+        b.event = (dur >= BUTTON_LONG_PRESS_MS) ? ButtonEvent::LONG_PRESS : ButtonEvent::SHORT_PRESS;
     }
 }
