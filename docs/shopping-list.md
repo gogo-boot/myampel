@@ -14,11 +14,11 @@ sidebar_position: 11
 | 3mm Red LED ×1 | €0.02 | €0.02 |
 | 3mm Green LED ×3 | €0.06 | €0.06 |
 | 3mm Yellow LED ×2 | €0.04 | €0.04 |
-| IR LED ×1 | €0.05 | €0.05 |
-| IR Phototransistor ×1 | €0.05 | €0.05 |
+| 5mm IR LED (940nm) ×1 | €0.05 | €0.05 |
+| 5mm IR Phototransistor ×1 | €0.05 | €0.05 |
 | 220Ω resistors ×6 | €0.06 | €0.06 |
-| 100Ω resistor ×1 | €0.01 | €0.01 |
-| 10kΩ resistor ×1 | €0.01 | €0.01 |
+| 100Ω resistor ×1 (IR LED) | €0.01 | €0.01 |
+| 10kΩ resistor ×1 (IR pull-up) | €0.01 | €0.01 |
 | 6mm tactile buttons ×2 | €0.10 | €0.10 |
 | **Total per signal** | **€8.40** | **€6.40** |
 
